@@ -20,10 +20,8 @@ class Connect:
         db_name = config["Postgres"]["db_name"]
         self.DSN = f"{system}://{name}:{password}@localhost:5432/{db_name}"
 
-    def get_engine(self):
+    def get_connection(self):
         self.engine = sq.create_engine(self.DSN)
-
-    def get_session(self):
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
