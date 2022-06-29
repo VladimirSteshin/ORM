@@ -43,16 +43,23 @@ def fill_db():
     session.close()
 
 
-def find_publisher(publisher):
+def find_shop(publisher):
     engine = get_engine()
     Session = sessionmaker(bind=engine)
     session = Session()
     if str(publisher).isdigit():
-        q = session.query(Book).join(Stock.book).filter(Book.id_publisher == publisher)
-        for book in q.all():
-            print(book.id_publisher)
+        name_pub = session.query(Publisher.name).filter(Publisher.id == publisher).first()[0]
+        q = session.query(Shop.name).join(Stock).join(Book).filter(Book.id_publisher == publisher).group_by(Shop.name)
+        for pub in q.all():
+            print(f'Books by publisher "{name_pub}" are in the shop {pub[0]}')
+    else:
+        q = session.query(Shop.name).join(Stock).join(Book).join(Publisher).filter(Publisher.name == publisher)
+        for pub in q.all():
+            print(f'Books by publisher "{publisher}" are in the shop {pub[0]}')
+    session.commit()
+    session.close()
 
 
 create_tables(get_engine())
 fill_db()
-find_publisher(1)
+find_shop(input("Input publisher's id or name: "))
